@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block body %}
+    {% for risk_category, risk_types in risks.items() %}
+        <h2>{{ risk_category }}</h2>
+        {% for risk_type, risks in risk_types.items() %}
+            {% for risk in risks %}
+                <p>{{ risk }}</p>
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
+{% endblock %}
