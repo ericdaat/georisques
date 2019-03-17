@@ -1,20 +1,30 @@
-import flask
+from flask import Blueprint, request, current_app, render_template
 import json
 from scrapping import get_risks_from_coordinates
 
 
-bp = flask.Blueprint("home", __name__)
+bp = Blueprint("home", __name__)
 
 
-@bp.route("/")
+@bp.route("/", methods=("GET", "POST"))
 def risks():
-    redis_store = flask.current_app.extensions["redis"]
-    risks = redis_store.get("foo")
+    risks = None
 
-    if risks:
-        risks = eval(risks)
-    else:
-        risks = get_risks_from_coordinates(lat=48.88711, lon=2.34525)
-        redis_store.set("foo", json.dumps(risks))
+    if request.method == "POST":
+        form = request.form.to_dict()
+        lat = form["lat"]
+        lon = form["lon"]
 
-    return flask.render_template("home/risks.html", risks=risks)
+        cache_key = "coord:{lat}_{lon}".format(lat=lat, lon=lon)
+
+        redis_store = current_app.extensions["redis"]
+        risks = redis_store.get(cache_key)
+
+        if risks:
+            risks = eval(risks)
+        else:
+            risks = get_risks_from_coordinates(lat=lat, lon=lon)
+            if risks:
+                redis_store.set(cache_key, json.dumps(risks))
+
+    return render_template("home/risks.html", risks=risks)
