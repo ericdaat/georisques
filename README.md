@@ -21,6 +21,14 @@ brew install redis;
 brew services start redis;
 ```
 
+Run the flask `init-db` command to initialize the sql database.  
+*Note: So far the database is not used, but it will be later on.*
+
+``` text
+export FLASK_APPLICATION=src/application
+flask init-db
+```
+
 ## Run the app
 
 Run the app in `DEBUG` mode on port `5000`:
@@ -29,12 +37,15 @@ Run the app in `DEBUG` mode on port `5000`:
 FLASK_APP=src/application FLASK_DEBUG=True flask run
 ```
 
-Run the app for production on port `8080`:
+Run the app for production on port `8080` using the following command:
 
 ``` text
 export PYTHONPATH=src:$PYTHONPATH
 python src/application/wsgi.py
 ```
+
+*Note: we use Waitress as WSGI server because Flask engine is not intended
+for production.*
 
 The app should launch, asking you for latitude and longitude values.
 Once provided, you shall see something like this:
