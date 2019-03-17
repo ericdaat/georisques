@@ -14,18 +14,30 @@ def get_risks_from_coordinates(lat, lon):
 
     soup = BeautifulSoup(driver.page_source, "lxml")
 
-    mapping = {
-        "flood": {"INN": []},
-        "industrial_installation": {"INST": []},
-        "sismic_ground_mvt": {"MVMT": [], "SEISM": []},
-        "radon_ground_polution": {"POL": [], "RADON": []}
+    risks_mapping = {
+        "Innondations": {"INN": []},
+        "Installations Industrielles": {"INST": []},
+        "Mouvements du sol et séismes": {"MVMT": [], "SEISM": []},
+        "Radon et pollution du sol": {"POL": [], "RADON": []},
     }
+    infos_commune = []
 
-    for risk_category, risk_types in mapping.items():
+    for risk_category, risk_types in risks_mapping.items():
         for risk_type in risk_types:
-            container = soup.find("div", {"id": "alea-{0}-container".format(risk_type)})
+            container = soup.find("div",
+                                  {"id": "alea-{0}-container".format(risk_type)})
+            if not container:
+                continue
+
             risks = container.find("div", {"id": "risque-general-container-{0}".format(risk_type)})
             labels = risks.find_all("span", {"class": "label"})
-            mapping[risk_category][risk_type] = [label.text for label in labels]
+            risks_mapping[risk_category][risk_type] = [label.text for label in labels]
 
-    return mapping
+    infos_commune = soup.find("div",
+                              {"class": "hogan-container",
+                               "id": "dest-commune-info"})
+
+    infos_commune = [info.text for info in infos_commune.find_all("p")]
+
+    return {"risks": risks_mapping,
+            "infos_commune": infos_commune}

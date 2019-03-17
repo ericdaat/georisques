@@ -27,4 +27,5 @@ def risks():
             if risks:
                 redis_store.set(cache_key, json.dumps(risks))
 
-    return render_template("home/risks.html", risks=risks)
+    return render_template("home/risks.html",
+                           risks=risks)
