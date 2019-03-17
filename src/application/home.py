@@ -23,8 +23,9 @@ def risks():
         if risks:
             risks = eval(risks)
         else:
-            risks = get_risks_from_coordinates(lat=lat, lon=lon)
-            if risks:
+            risks, has_found_results = get_risks_from_coordinates(lat=lat,
+                                                                  lon=lon)
+            if has_found_results:
                 redis_store.set(cache_key, json.dumps(risks))
 
     return render_template("home/risks.html",

@@ -4,12 +4,13 @@ from selenium import webdriver
 URL = "http://www.georisques.gouv.fr/connaitre_les_risques_pres_de_chez_soi"\
       "/ma_maison_mes_risques/rapport?lon={lon}&lat={lat}&isCadastre=true"
 
+options = webdriver.ChromeOptions()
+options.add_argument("headless")
+global driver
+driver = webdriver.Chrome(options=options)
+
 
 def get_risks_from_coordinates(lat, lon):
-    options = webdriver.ChromeOptions()
-    options.add_argument("headless")
-    driver = webdriver.Chrome(options=options)
-
     driver.get(URL.format(lat=lat, lon=lon))
 
     soup = BeautifulSoup(driver.page_source, "lxml")
@@ -39,5 +40,7 @@ def get_risks_from_coordinates(lat, lon):
 
     infos_commune = [info.text for info in infos_commune.find_all("p")]
 
-    return {"risks": risks_mapping,
-            "infos_commune": infos_commune}
+    has_found_results = labels and infos_commune
+    results = {"risks": risks_mapping, "infos_commune": infos_commune}
+
+    return results, has_found_results
